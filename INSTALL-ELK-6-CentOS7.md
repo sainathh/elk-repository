@@ -1,9 +1,9 @@
 # Installation instructions for CentOS 7
 
 ## Assumptions
-server.example.com __(ELK master)__
+elk-server.hspace.com __(ELK master)__
 
-client.example.com __(client machine)__
+elk-client.hspace.com __(client machine)__
 
 ## ELK Stack installation on server.example.com
 ###### Install Java 8
@@ -17,9 +17,9 @@ rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 ###### Create Yum repository
 ```
 cat >>/etc/yum.repos.d/elk.repo<<EOF
-[ELK-6.x]
-name=ELK repository for 6.x packages
-baseurl=https://artifacts.elastic.co/packages/6.x/yum
+[elasticsearch]
+name=Elasticsearch repository for 7.x packages
+baseurl=https://artifacts.elastic.co/packages/7.x/yum
 gpgcheck=1
 gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
 enabled=1
@@ -30,7 +30,7 @@ EOF
 ### Elasticsearch
 ###### Install Elasticsearch
 ```
-yum install -y elasticsearch
+sudo yum install -y --enablerepo=elasticsearch elasticsearch
 ```
 ###### Enable and start elasticsearch service
 ```
