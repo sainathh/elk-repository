@@ -5,7 +5,7 @@ elk-server.hspace.com __(ELK master)__
 
 elk-client.hspace.com __(client machine)__
 
-## ELK Stack installation on server.example.com
+## ELK Stack installation on elk-server.hspace.com
 ###### Install Java 8
 ```
 yum install -y java-1.8.0-openjdk
@@ -192,7 +192,7 @@ systemctl status logstash
 journalctl --unit logstash
 ```
 
-## FileBeat installation on client.example.com
+## FileBeat installation on elk-client.hspace.com
 ###### Create Yum repository
 ```
 cat >>/etc/yum.repos.d/elk.repo<<EOF
