@@ -196,9 +196,9 @@ journalctl --unit logstash
 ###### Create Yum repository
 ```
 cat >>/etc/yum.repos.d/elk.repo<<EOF
-[ELK-6.x]
-name=ELK repository for 6.x packages
-baseurl=https://artifacts.elastic.co/packages/6.x/yum
+[elasticsearch]
+name=Elasticsearch repository for 7.x packages
+baseurl=https://artifacts.elastic.co/packages/7.x/yum
 gpgcheck=1
 gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
 enabled=1
@@ -206,21 +206,122 @@ autorefresh=1
 type=rpm-md
 EOF
 ```
+
 ###### Install Filebeat
 ```
 yum install -y filebeat
 ```
 ###### Copy SSL certificate from server.example.com
 ```
-scp server.example.com:/etc/pki/tls/certs/logstash.crt /etc/pki/tls/certs/
+scp elk-server.hspace.com:/etc/pki/tls/certs/logstash.crt /etc/pki/tls/certs/
 ```
 ###### Configure Filebeat 
-[Refer my youtube video]
+```
+rpm -qc filebeat
+```
+Take backup of filebeat configuration file
+```
+cp /etc/filebeat/filebeat.yml /etc/filebeat/filebeat.yml_bkp
+```
+Edit the Filebeat Configuration file
+```
+vi /etc/filebeat/filebeat.yml
+
+### Change this below content
+
+- type: filestream
+
+  # Change to true to enable this input configuration.
+  enabled: false
+
+  # Paths that should be crawled and fetched. Glob based paths.
+  paths:
+    - /var/log/*.log
+    #- c:\programdata\elasticsearch\logs\*
+
+### to this content
+
+- type: filestream
+
+  # Change to true to enable this input configuration.
+  enabled: true
+
+  # Paths that should be crawled and fetched. Glob based paths.
+  paths:
+    - /var/log/messages
+    - /var/log/secure
+    #- c:\programdata\elasticsearch\logs\*
+
+
+### Edit the content in outputs section, Comment the ElasticSearch output and enable the logstash output
+
+output.elasticsearch:
+  # Array of hosts to connect to.
+  hosts: ["localhost:9200"]
+
+  # Protocol - either `http` (default) or `https`.
+  #protocol: "https"
+
+  # Authentication credentials - either API key or username/password.
+  #api_key: "id:api_key"
+  #username: "elastic"
+  #password: "changeme"
+
+#output.elasticsearch:
+  # Array of hosts to connect to.
+  #hosts: ["localhost:9200"]
+
+  # Protocol - either `http` (default) or `https`.
+  #protocol: "https"
+
+  # Authentication credentials - either API key or username/password.
+  #api_key: "id:api_key"
+  #username: "elastic"
+  #password: "changeme"
+
+### Enable the Logstash Output
+
+#output.logstash:
+  # The Logstash hosts
+  #hosts: ["localhost:5044"]
+
+  # Optional SSL. By default is off.
+  # List of root certificates for HTTPS server verifications
+  #ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
+
+  # Certificate for SSL client authentication
+  #ssl.certificate: "/etc/pki/client/cert.pem"
+
+  # Client Certificate Key
+  #ssl.key: "/etc/pki/client/cert.key"
+
+output.logstash:
+  # The Logstash hosts
+  hosts: ["elk-server.hspace.com:5044"]
+
+  # Optional SSL. By default is off.
+  # List of root certificates for HTTPS server verifications
+  ssl.certificate_authorities: ["/etc/pki/tls/certs/logstash.crt"]
+
+  # Certificate for SSL client authentication
+  #ssl.certificate: "/etc/pki/client/cert.pem"
+
+  # Client Certificate Key
+  #ssl.key: "/etc/pki/client/cert.key"
+
+```
 ###### Enable and start Filebeat service
 ```
 systemctl enable filebeat
 systemctl start filebeat
+systemctl status filebeat
 ```
+###### To check the logs
+```
+journalctl --unit filebeat
+```
+
+
 ### Configure Kibana Dashboard
 All done. Now you can head to Kibana dashboard and add the index.
 
