@@ -37,18 +37,59 @@ sudo yum install -y --enablerepo=elasticsearch elasticsearch
 systemctl daemon-reload
 systemctl enable elasticsearch
 systemctl start elasticsearch
+systemctl status elasticsearch
 ```
+###### Elasticsearch Configuration files
+```
+rpm -qc elasticsearch
+```
+###### Elasticsearch Log files Location
+```
+ls /var/log/elasticsearch/
+
+journalctl --unit elasticsearch
+```
+
+
 ### Kibana
+###### Import GPG Key
+```
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+```
+###### Create Yum repository
+```
+cat >>/etc/yum.repos.d/kibana.repo<<EOF
+[kibana-7.x]
+name=Kibana repository for 7.x packages
+baseurl=https://artifacts.elastic.co/packages/7.x/yum
+gpgcheck=1
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+autorefresh=1
+type=rpm-md
+EOF
+```
+
 ###### Install kibana
 ```
-yum install -y kibana
+sudo yum install -y kibana
 ```
 ###### Enable and start kibana service
 ```
 systemctl daemon-reload
 systemctl enable kibana
 systemctl start kibana
+systemctl status kibana
 ```
+###### Kibana Configuration Files
+```
+rpm -qc kibana
+```
+###### Kibana Logs
+```
+journalctl --unit kibana
+```
+
 ###### Install Nginx
 ```
 yum install -y epel-release
@@ -61,7 +102,7 @@ And create a new config file
 cat >>/etc/nginx/conf.d/kibana.conf<<EOF
 server {
     listen 80;
-    server_name server.example.com;
+    server_name elk-server.hspace.com;
     location / {
         proxy_pass http://localhost:5601;
     }
@@ -73,16 +114,36 @@ EOF
 systemctl enable nginx
 systemctl start nginx
 ```
+
 ### Logstash
+###### Import GPG Key
+```
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+```
+###### Create Yum repository
+```
+cat >>/etc/yum.repos.d/logstash.repo<<EOF
+[logstash-7.x]
+name=Elastic repository for 7.x packages
+baseurl=https://artifacts.elastic.co/packages/7.x/yum
+gpgcheck=1
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+autorefresh=1
+type=rpm-md
+EOF
+```
+
 ###### Install logstash
 ```
 yum install -y logstash
 ```
 ###### Generate SSL Certificates
 ```
-openssl req -subj '/CN=server.example.com/' -x509 -days 3650 -nodes -batch -newkey rsa:2048 -keyout /etc/pki/tls/private/logstash.key -out /etc/pki/tls/certs/logstash.crt
+openssl req -subj '/CN=elk-server.hspace.com/' -x509 -days 3650 -nodes -batch -newkey rsa:2048 -keyout /etc/pki/tls/private/logstash.key -out /etc/pki/tls/certs/logstash.crt
 ```
 ###### Create Logstash config file
+To configure Logstash, you create a config file that specifies which plugins you want to use and settings for each plugin. You can reference event fields in a configuration and use conditionals to process events when they meet certain criteria.
 ```
 vi /etc/logstash/conf.d/01-logstash-simple.conf
 ```
@@ -124,7 +185,13 @@ output {
 ```
 systemctl enable logstash
 systemctl start logstash
+systemctl status logstash
 ```
+###### To check the logs
+```
+journalctl --unit logstash
+```
+
 ## FileBeat installation on client.example.com
 ###### Create Yum repository
 ```
