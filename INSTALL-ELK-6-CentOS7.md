@@ -215,7 +215,17 @@ EOF
 ```
 yum install -y filebeat
 ```
-###### Copy SSL certificate from server.example.com
+
+###### Ubuntu (APT) based Machines
+```
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+sudo apt-get install apt-transport-https y
+echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+sudo apt-get update && sudo apt-get install filebeat -y
+sudo systemctl enable filebeat
+```
+
+###### Copy SSL certificate from elk-server.hspace.com
 ```
 scp elk-server.hspace.com:/etc/pki/tls/certs/logstash.crt /etc/pki/tls/certs/
 ```
