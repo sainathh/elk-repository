@@ -193,6 +193,10 @@ journalctl --unit logstash
 ```
 
 ## FileBeat installation on elk-client.hspace.com
+###### Import GPG Key
+```
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+```
 ###### Create Yum repository
 ```
 cat >>/etc/yum.repos.d/elk.repo<<EOF
