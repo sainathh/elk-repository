@@ -165,6 +165,13 @@ EOF
 ```
 yum install -y logstash
 ```
+
+###### Ubuntu (APT) based Machines
+```
+sudo apt-get update && sudo apt-get install logstash
+```
+
+
 ###### Generate SSL Certificates
 ```
 openssl req -subj '/CN=elk-server.hspace.com/' -x509 -days 3650 -nodes -batch -newkey rsa:2048 -keyout /etc/pki/tls/private/logstash.key -out /etc/pki/tls/certs/logstash.crt
