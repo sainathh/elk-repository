@@ -65,10 +65,7 @@ journalctl --unit elasticsearch
 ```
 
 ### Kibana
-###### Import GPG Key
-```
-rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
-```
+
 ###### Create Yum repository
 ```
 cat >>/etc/yum.repos.d/kibana.repo<<EOF
@@ -105,9 +102,9 @@ journalctl --unit kibana
 
 ###### Ubuntu (APT) based Machines
 ```
-wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
-sudo apt-get install apt-transport-https
-echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+#wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+#sudo apt-get install apt-transport-https
+#echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
 sudo apt-get update && sudo apt-get install kibana
 systemctl daemon-reload
 systemctl enable kibana
@@ -143,10 +140,7 @@ systemctl start nginx
 ```
 
 ### Logstash
-###### Import GPG Key
-```
-rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
-```
+
 ###### Create Yum repository
 ```
 cat >>/etc/yum.repos.d/logstash.repo<<EOF
