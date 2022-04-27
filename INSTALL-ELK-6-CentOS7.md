@@ -355,6 +355,7 @@ output.logstash:
 
 ###### Test Filebeat Configuration
 ```
+filebeat test config
 filebeat test output
 ```
 
@@ -375,7 +376,7 @@ filebeat modules enable system  (Module Name)
 ```
 
 ## Metricbeat installation on elk-client.hspace.com
-###### Ubuntu (APT) based Machines
+##### Ubuntu (APT) based Machines
 ```
 wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
 sudo apt-get install apt-transport-https -y
@@ -383,7 +384,7 @@ echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee 
 sudo apt-get update && sudo apt-get install metricbeat -y
 sudo systemctl enable metricbeat
 ```
-
+##### RPM (YUM) based Machines
 ###### Import GPG Key
 ```
 rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
@@ -402,10 +403,102 @@ type=rpm-md
 EOF
 ```
 
-###### Install Filebeat
+###### Install Metricbeat
 ```
-yum install -y filebeat
+yum install -y metricbeat
 ```
+
+###### Copy SSL certificate from elk-server.hspace.com
+```
+scp elk-server.hspace.com:/etc/pki/tls/certs/logstash.crt /etc/pki/tls/certs/
+```
+###### Configure Metricbeat 
+```
+rpm -qc metricbeat
+```
+Take backup of metricbeat configuration file
+```
+cp /etc/metricbeat/metricbeat.yml /etc/metricbeat/metricbeat.yml_bkp
+```
+Edit the Metricbeat Configuration file
+```
+vi /etc/metricbeat/metricbeat.yml
+
+### Edit the content in outputs section, Comment the ElasticSearch output and enable the logstash output
+
+output.elasticsearch:
+  # Array of hosts to connect to.
+  hosts: ["localhost:9200"]
+
+  # Protocol - either `http` (default) or `https`.
+  #protocol: "https"
+
+  # Authentication credentials - either API key or username/password.
+  #api_key: "id:api_key"
+  #username: "elastic"
+  #password: "changeme"
+
+#output.elasticsearch:
+  # Array of hosts to connect to.
+  #hosts: ["localhost:9200"]
+
+  # Protocol - either `http` (default) or `https`.
+  #protocol: "https"
+
+  # Authentication credentials - either API key or username/password.
+  #api_key: "id:api_key"
+  #username: "elastic"
+  #password: "changeme"
+
+### Enable the Logstash Output
+
+#output.logstash:
+  # The Logstash hosts
+  #hosts: ["localhost:5044"]
+
+  # Optional SSL. By default is off.
+  # List of root certificates for HTTPS server verifications
+  #ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
+
+  # Certificate for SSL client authentication
+  #ssl.certificate: "/etc/pki/client/cert.pem"
+
+  # Client Certificate Key
+  #ssl.key: "/etc/pki/client/cert.key"
+
+output.logstash:
+  # The Logstash hosts
+  hosts: ["elk-server.hspace.com:5044"]
+
+  # Optional SSL. By default is off.
+  # List of root certificates for HTTPS server verifications
+  ssl.certificate_authorities: ["/etc/pki/tls/certs/logstash.crt"]
+
+  # Certificate for SSL client authentication
+  #ssl.certificate: "/etc/pki/client/cert.pem"
+
+  # Client Certificate Key
+  #ssl.key: "/etc/pki/client/cert.key"
+
+```
+
+###### Test Metricbeat Configuration
+```
+metricbeat test config
+metricbeat test output
+```
+
+###### Enable and start Filebeat service
+```
+systemctl enable metricbeat
+systemctl start metricbeat
+systemctl status metricbeat
+```
+###### To check the logs
+```
+journalctl --unit metricbeat
+```
+
 
 ### Configure Kibana Dashboard
 All done. Now you can head to Kibana dashboard and add the index.
