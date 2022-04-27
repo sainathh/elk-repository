@@ -368,7 +368,44 @@ systemctl status filebeat
 ```
 journalctl --unit filebeat
 ```
+###### Filebeat modules
+```
+sudo filebeat modules list
+filebeat modules enable system  (Module Name)
+```
 
+## Metricbeat installation on elk-client.hspace.com
+###### Ubuntu (APT) based Machines
+```
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+sudo apt-get install apt-transport-https -y
+echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+sudo apt-get update && sudo apt-get install metricbeat -y
+sudo systemctl enable metricbeat
+```
+
+###### Import GPG Key
+```
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+```
+###### Create Yum repository
+```
+cat >>/etc/yum.repos.d/elk.repo<<EOF
+[elasticsearch]
+name=Elasticsearch repository for 7.x packages
+baseurl=https://artifacts.elastic.co/packages/7.x/yum
+gpgcheck=1
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+autorefresh=1
+type=rpm-md
+EOF
+```
+
+###### Install Filebeat
+```
+yum install -y filebeat
+```
 
 ### Configure Kibana Dashboard
 All done. Now you can head to Kibana dashboard and add the index.
