@@ -352,6 +352,12 @@ output.logstash:
   #ssl.key: "/etc/pki/client/cert.key"
 
 ```
+
+###### Test Filebeat Configuration
+```
+filebeat test output
+```
+
 ###### Enable and start Filebeat service
 ```
 systemctl enable filebeat
